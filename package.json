@@ -8,10 +8,13 @@
     "dev:frontend": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "gen-private-key": "openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out private_key.pem",
+    "gen-public-key": "openssl pkey -in private_key.pem -pubout -out public_key.pem"
   },
   "dependencies": {
     "convex": "^1.29.3",
+    "jose": "^6.1.2",
     "next": "16.0.3",
     "react": "19.2.0",
     "react-dom": "19.2.0"
