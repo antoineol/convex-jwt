@@ -1,3 +1,4 @@
+import "server-only";
 import * as jose from "jose";
 
 import { SignJWT, jwtVerify, createRemoteJWKSet } from 'jose';
@@ -5,16 +6,18 @@ import { createPrivateKey } from 'crypto';
 
 // Load or parse your RSA private key (PKCS#1 or PKCS#8)
 const privateKeyPem = process.env.RSA_PRIVATE_KEY!;
-
 const privateKey = createPrivateKey(privateKeyPem);
+
+const aud = "convex-jwt";
+const iss = "http://localhost:3000";
 
 export async function createJWT(payload: Record<string, unknown>) {
     const jwt = await new SignJWT(payload)
         .setProtectedHeader({ alg: 'RS256' })
         .setIssuedAt()
         .setExpirationTime('1h')
-        .setAudience("convex-jwt")
-        .setIssuer("http://localhost:3000")
+        .setAudience(aud)
+        .setIssuer(iss)
         .sign(privateKey);
 
     return jwt;
@@ -31,7 +34,7 @@ const jwksJsonBase64 = btoa(jwksJson);
 const jwksUrl = `data:text/plain;charset=utf-8;base64,${jwksJsonBase64}`;
 // const jwksUrl = "http://localhost:3000/.well-known/jwks.json";
 
-export async function validateJWT(jwt: string) {
+export async function parseJWT(jwt: string) {
     const JWKS = createRemoteJWKSet(new URL(jwksUrl));
 
     const { payload } = await jwtVerify(jwt, JWKS, {
