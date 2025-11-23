@@ -1,5 +1,5 @@
 import { createJWT, parseJWT } from "@/lib/jwt";
-import { List } from "./List";
+// import { List } from "./List";
 import { JwtCheck } from "./api/auth/token/JwtCheck";
 import { ConvexJwtCheck } from "./api/auth/token/ConvexJwtCheck";
 
@@ -14,8 +14,8 @@ export default async function Home() {
         <div>
           <JwtCheck />
           <ConvexJwtCheck />
-          <hr className="my-8" />
-          <List />
+          {/* <hr className="my-8" /> */}
+          {/* <List /> */}
         </div>
       </main>
     </div>

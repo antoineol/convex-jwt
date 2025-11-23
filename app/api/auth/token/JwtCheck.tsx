@@ -4,14 +4,14 @@ import { useJwtAuth } from "@/hooks/useJwtAuth";
 import { useState } from "react";
 
 export function JwtCheck() {
-    const { isLoading, isAuthenticated, getToken } = useJwtAuth();
+    const { isLoading, isAuthenticated, fetchAccessToken: getToken } = useJwtAuth();
     const [token, setToken] = useState<string | null>(null);
 
     const handleGetToken = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const forceRefresh = e.currentTarget.forceRefresh.checked;
+        const forceRefreshToken = (e.currentTarget.forceRefresh as HTMLInputElement).checked;
         try {
-            setToken(await getToken({ ignoreCache: forceRefresh }));
+            setToken(await getToken({ forceRefreshToken }));
         } catch (error) {
             console.error("Failed to get token:", error);
         }

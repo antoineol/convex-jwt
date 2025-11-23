@@ -1,34 +1,26 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { fetchToken } from "./details/fetchToken";
 
-let cachedToken: string | null = null;
+let tokenPromise: Promise<string> | null = null;
 
 export function useJwtAuth() {
-    const [isLoading, setIsLoading] = useState(false);
-    const [isAuthenticated, setIsAuthenticated] = useState(!!cachedToken);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isAuthenticated, setIsAuthenticated] = useState(!!tokenPromise);
 
-    const getToken = useCallback(
-        async ({ ignoreCache = false }: { ignoreCache?: boolean } = {}) => {
-            if (!ignoreCache && cachedToken) {
-                return cachedToken;
-            }
-
-            setIsLoading(true);
+    const fetchAccessToken = useCallback(
+        async ({ forceRefreshToken = false } = {}) => {
             try {
-                const response = await fetch("/api/auth/token");
-                if (!response.ok) {
-                    throw new Error("Failed to fetch token");
+                console.log('[fetchAccessToken] forceRefreshToken', forceRefreshToken);
+                if (forceRefreshToken || !tokenPromise) {
+                    setIsLoading(true);
+                    tokenPromise = fetchToken();
                 }
-                const { token } = await response.json();
-                cachedToken = token;
+
+                const token = await tokenPromise;
                 setIsAuthenticated(true);
                 return token;
-                // Catch block removable?
-            } catch (error) {
-                cachedToken = null;
-                setIsAuthenticated(false);
-                throw error;
             } finally {
                 setIsLoading(false);
             }
@@ -36,33 +28,13 @@ export function useJwtAuth() {
         []
     );
 
-    return { isLoading, isAuthenticated, getToken };
-}
+    console.log('[useJwtAuth] isLoading', isLoading, 'isAuthenticated', isAuthenticated);
 
-export function useJwtConvexAuth() {
-    const { isLoading, isAuthenticated, getToken } = useJwtAuth();
-    const fetchAccessToken = useCallback(
-        async ({ forceRefreshToken }: { forceRefreshToken: boolean }) => {
-            console.log("Convex fetches token"); // Never logged
+    useEffect(() => {
+        fetchAccessToken().catch((error) => {
+            console.error('Error in getToken', error);
+        });
+    }, [fetchAccessToken]);
 
-            // Here you can do whatever transformation to get the ID Token
-            // or null
-            // Make sure to fetch a new token when `forceRefreshToken` is true
-            return await getToken({ ignoreCache: forceRefreshToken });
-        },
-        // If `getToken` isn't correctly memoized
-        // remove it from this dependency array
-        [getToken],
-    );
-    return useMemo(
-        () => ({
-            // Whether the auth provider is in a loading state
-            isLoading: isLoading,
-            // Whether the auth provider has the user signed in
-            isAuthenticated: isAuthenticated ?? false,
-            // The async function to fetch the ID token
-            fetchAccessToken,
-        }),
-        [isLoading, isAuthenticated, fetchAccessToken],
-    );
+    return { isLoading, isAuthenticated, fetchAccessToken: fetchAccessToken };
 }
