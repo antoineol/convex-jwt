@@ -12,7 +12,7 @@ bun install
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and notice it's continuously fetching the token.
+Open [http://localhost:3020](http://localhost:3020) and notice it's continuously fetching the token.
 
 Now, go to branch "experiment" that uses `convex.setAuth` instead of `ConvexProviderWithAuth`, and now it works.
 

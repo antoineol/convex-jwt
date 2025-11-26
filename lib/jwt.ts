@@ -10,7 +10,7 @@ const privateKey = createPrivateKey(privateKeyPem);
 const jwtPromise = exportJWK(await importSPKI(process.env.EC_PUBLIC_KEY!.replace(/\\n/g, "\n"), "ES256"));
 
 const aud = "convex-jwt";
-const iss = "http://localhost:3000";
+const iss = "http://localhost:3020";
 
 /**
  * Creates a JWT token that meets Convex requirements:
@@ -55,14 +55,14 @@ async function getKeyId() {
 const jwksJson = '{"keys":[{"kty":"EC","x":"qVJ7wxptXfCe1D3xX6B4C5xrPSRyFtvIql1hEW7rwHc","y":"IYxRrBrYd9h0hmxmimJsFFqxIFeE-S2yy2zKOYApdXU","crv":"P-256","use":"sig","alg":"ES256","kid":"default"}]}'
 const jwksJsonBase64 = btoa(jwksJson);
 const jwksUrl = `data:text/plain;charset=utf-8;base64,${jwksJsonBase64}`;
-// const jwksUrl = "http://localhost:3000/.well-known/jwks.json";
+// const jwksUrl = "http://localhost:3020/.well-known/jwks.json";
 
 export async function parseJWT(jwt: string) {
     const JWKS = createRemoteJWKSet(new URL(jwksUrl));
 
     const { payload } = await jwtVerify(jwt, JWKS, {
         audience: "convex-jwt",
-        issuer: "http://localhost:3000",
+        issuer: "http://localhost:3020",
     });
 
     return payload;
