@@ -3,11 +3,11 @@ import "server-only";
 import { SignJWT, jwtVerify, createRemoteJWKSet, exportJWK, importSPKI } from 'jose';
 import { createPrivateKey } from 'crypto';
 
-// Load or parse your RSA private key (PKCS#1 or PKCS#8)
-const privateKeyPem = process.env.RSA_PRIVATE_KEY!;
+// Load or parse your EC private key (PKCS#8)
+const privateKeyPem = process.env.EC_PRIVATE_KEY!;
 const privateKey = createPrivateKey(privateKeyPem);
 
-const jwtPromise = exportJWK(await importSPKI(process.env.RSA_PUBLIC_KEY!.replace(/\\n/g, "\n"), "RS256"));
+const jwtPromise = exportJWK(await importSPKI(process.env.EC_PUBLIC_KEY!.replace(/\\n/g, "\n"), "ES256"));
 
 const aud = "convex-jwt";
 const iss = "http://localhost:3000";
@@ -27,7 +27,7 @@ export async function createJWT(payload: Record<string, unknown>) {
 
     const jwt = await new SignJWT(payload)
         .setProtectedHeader({
-            alg: 'RS256',  // Required by Convex
+            alg: 'ES256',  // Required by Convex
             kid: kid,      // Required by Convex
             typ: 'JWT'     // Required by Convex
         })
@@ -42,7 +42,7 @@ export async function createJWT(payload: Record<string, unknown>) {
 
 export async function getJWKS() {
     const jwk = await jwtPromise;
-    return [{ ...jwk, use: "sig", alg: "RS256", kid: await getKeyId() }];
+    return [{ ...jwk, use: "sig", alg: "ES256", kid: await getKeyId() }];
 }
 
 async function getKeyId() {
@@ -52,7 +52,7 @@ async function getKeyId() {
 }
 
 // Simulate the JWKS check on Convex
-const jwksJson = '{"keys":[{"kty":"RSA","n":"rtDDBUnTfk0XC_GNSl-H-6ry6v1WGxb6U4VDOjrqlkplrDDZUpr_Rk8dB8dj0sSnq6UbLjZvIO2WdP4mSfpxa0fmJNlkGCM74N-Pqv1WwiCSlJHzgTh7o9JP7DdtAVMsri2wO5fFnu6XWpkv_rBhgu6dL66pCyclgCLB-Hv5kwT1wZnEAdHzeUlbEgotGhjNHZ8JPn5pKAuJgY0JvW3zQCvGY6KQPcExMRANgdmMMoQcT2Hwv0TAm0x27dB6LrfZ5k0QhB3PQ33rGHC0Rfe_mFnpD2xTcCeCPmsCpp2b0K-qoyMO-hbtrMGtHTCwJIdttxpMkwURAavpta5IBwIrsQ","e":"AQAB","use":"sig","alg":"RS256","kid":"default"}]}'
+const jwksJson = '{"keys":[{"kty":"EC","x":"qVJ7wxptXfCe1D3xX6B4C5xrPSRyFtvIql1hEW7rwHc","y":"IYxRrBrYd9h0hmxmimJsFFqxIFeE-S2yy2zKOYApdXU","crv":"P-256","use":"sig","alg":"ES256","kid":"default"}]}'
 const jwksJsonBase64 = btoa(jwksJson);
 const jwksUrl = `data:text/plain;charset=utf-8;base64,${jwksJsonBase64}`;
 // const jwksUrl = "http://localhost:3000/.well-known/jwks.json";
