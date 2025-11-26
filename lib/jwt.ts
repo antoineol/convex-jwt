@@ -32,7 +32,7 @@ export async function createJWT(payload: Record<string, unknown>) {
             typ: 'JWT'     // Required by Convex
         })
         .setIssuedAt()     // Sets 'iat' - expected by Convex clients for token refreshing
-        .setExpirationTime('1h')  // Sets 'exp' - required by Convex
+        .setExpirationTime('15m')  // Sets 'exp' - required by Convex
         .setIssuer(iss)    // Sets 'iss' - required by Convex
         .setAudience(aud)
         .sign(privateKey);

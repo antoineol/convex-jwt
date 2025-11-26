@@ -2,6 +2,10 @@
 
 let tokenPromise: Promise<string> | null = null;
 
+export function setDefaultJwt(jwt: string) {
+    tokenPromise = Promise.resolve(jwt);
+}
+
 export async function fetchTokenCached({ forceRefreshToken = false } = {}) {
     if (forceRefreshToken || !tokenPromise) {
         tokenPromise = fetchToken();

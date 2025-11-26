@@ -1,14 +1,19 @@
 "use client";
 
-import { fetchTokenCached } from "@/lib/fetchToken";
+import { fetchTokenCached, setDefaultJwt } from "@/lib/fetchToken";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
-import { ReactNode } from "react";
+import { PropsWithChildren } from "react";
+
+export type ConvexClientProviderProps = PropsWithChildren<{
+  defaultJwt: string;
+}>;
 
 const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!, {
   expectAuth: true,
 });
 
-export function ConvexClientProvider({ children }: { children: ReactNode }) {
+export function ConvexClientProvider({ defaultJwt, children }: ConvexClientProviderProps) {
+  setDefaultJwt(defaultJwt);
   convex.setAuth(fetchTokenCached);
 
   return (
