@@ -1,4 +1,14 @@
-export async function fetchToken() {
+"use client";
+
+let tokenPromise: Promise<string> | null = null;
+
+export async function fetchTokenCached({ forceRefreshToken = false } = {}) {
+    if (forceRefreshToken || !tokenPromise) {
+        tokenPromise = fetchToken();
+    }
+    return tokenPromise;
+}
+async function fetchToken() {
     // Use absolute URL to avoid URL parsing errors in server-side contexts
     const baseUrl = typeof window !== 'undefined'
         ? window.location.origin
